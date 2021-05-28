@@ -26,7 +26,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean },
+      open: { type: Boolean, reflect: true },
       nohide: { type: Boolean },
     };
   }
@@ -58,7 +58,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   render(): TemplateResult {
-    if (!this.in('idle') || !this.data) {
+    if (!this.data) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
@@ -79,7 +79,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
             ? 'text-tertiary'
             : ''}"
         >
-          <details class="m-s text-body w-full " @toggle=${this.__toggleOpen}>
+          <details class="m-s text-body w-full " @toggle=${this.__toggleOpen} ?open=${this.open}>
             <summary
               class="border-l-2 p-s relative cursor-pointer ${this.data.hide_error
                 ? 'border-error'
@@ -165,14 +165,36 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                   : html``}
               </div>
             </x-group>
+            ${this.in('idle')
+              ? ''
+              : html`
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <foxy-spinner
+                      data-testid="spinner"
+                      class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                      layout="horizontal"
+                      state=${this.in('busy') ? 'busy' : 'error'}
+                    >
+                    </foxy-spinner>
+                  </div>
+                `}
           </details>
         </div>
       `;
     }
   }
 
-  private __toggleOpen() {
-    this.open = !this.open;
+  private __toggleOpen(event: Event) {
+    const details = event.target as HTMLDetailsElement;
+    if (event.type == 'toggle' && details.open) {
+      if (this.data && !this.data.hide_error) {
+        const edited: any = { ...this.data, hide_error: true };
+        delete edited['_links'];
+        this.edit(edited);
+        this.submit();
+      }
+    }
+    this.open = details.open;
   }
 }
 
