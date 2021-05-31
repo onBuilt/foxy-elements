@@ -18,6 +18,14 @@ import { Group } from '../../private';
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
 
+/**
+ * Displays an ErrorEntry from the Log of FoxyAPI.
+ *
+ * A summary of the Error Entry is presented
+ *
+ * @element foxy-error-entry-card
+ *
+ */
 export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get styles(): CSSResult | CSSResultArray {
     return [Themeable.styles];
@@ -27,7 +35,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     return {
       ...super.properties,
       open: { type: Boolean, reflect: true },
-      nohide: { type: Boolean },
     };
   }
 
@@ -46,15 +53,16 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
-  open: boolean;
-
-  nohide = false;
+  /**
+   * **Required** Boolean. When first set to true triggers an update to the error entry, marking it
+   * as read.
+   */
+  open = false;
 
   private __ns = 'error-entry';
 
   constructor() {
     super();
-    this.open = false;
   }
 
   render(): TemplateResult {
@@ -85,11 +93,11 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                 ? 'border-error'
                 : 'border-primary'}"
             >
-              <div class="text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0">
+              <p class="text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0">
                 ${this.open
                   ? html`<iron-icon icon="icons:expand-less"></iron-icon>`
                   : html`<iron-icon icon="icons:expand-more"></iron-icon>`}
-              </div>
+              </p>
               <foxy-i18n
                 key="date"
                 options='{"value": "${this.data.date_created}"}'
@@ -198,6 +206,9 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 }
 
+/**
+ * A simplified information set from Customer to be used within ErrorEntry.
+ */
 class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
   FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>
 > {
@@ -235,6 +246,9 @@ class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
   }
 }
 
+/**
+ * A simplified information set from Transaction to be used within ErrorEntry.
+ */
 class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<
   FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>
 > {
@@ -393,18 +407,13 @@ class KeyValues extends Themeable {
           vertical-align: top;
           overflow-wrap: anywhere;
         }
-        dt:before {
-          display: block;
-          content: ' ';
-          width: 100%;
-        }
         dt {
-          min-width: calc(3 * var(--lumo-size-l));
-          width: calc(33.33% - 0.5em);
+          min-width: calc(5 * var(--lumo-size-l));
           padding-right: 0.5em;
         }
         dd {
-          width: 66.67%;
+          max-width: calc(15 * var(--lumo-size-l));
+          min-width: calc(10 * var(--lumo-size-l));
         }
       `,
     ];
@@ -434,8 +443,10 @@ class KeyValues extends Themeable {
       <dl class="mb-s">
         ${this.data.map(
           e =>
-            html`<dt class="text-secondary mt-s truncate">${e[0]}</dt>
-              <dd class="mt-s">${e[1]}</dd>`
+            html`<div>
+              <dt class="text-secondary mt-s truncate">${e[0]}</dt>
+              <dd class="mt-s">${e[1]}</dd>
+            </div>`
         )}
       </dl>
     `;
